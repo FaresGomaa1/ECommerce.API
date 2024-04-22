@@ -24,10 +24,7 @@ namespace ECommerce.API.DTOs.Users
 
         [Required(ErrorMessage = "State is required")]
         public string State { get; set; }
-
-        [Required(ErrorMessage = "Postal code is required")]
-        [RegularExpression(@"^\d{5}(-\d{4})?$", ErrorMessage = "Invalid postal code format")]
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Invalid password format")]
