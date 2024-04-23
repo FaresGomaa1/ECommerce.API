@@ -1,10 +1,13 @@
-
 using ECommerce.API.ECommerce.Application.Interfaces;
+using ECommerce.API.ECommerce.Domain;
 using ECommerce.API.ECommerce.Domain.Model;
 using ECommerce.API.ECommerce.Infrastructure;
 using ECommerce.API.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace ECommerce.API
 {
@@ -13,19 +16,25 @@ namespace ECommerce.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
 
             // Add services to the container.
+            builder.Services.AddSingleton(configuration);
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            //builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
             // inject for database
             builder.Services.AddDbContext<ECommerceDbContext>(optionBuilder =>
             {
-                optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+                optionBuilder.UseSqlServer(configuration.GetConnectionString("cs"));
             });
+
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ECommerceDbContext>();
             var app = builder.Build();
 
