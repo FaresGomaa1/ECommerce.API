@@ -11,18 +11,10 @@ namespace ECommerce.API.DTOs.Users
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
-
-        [Required(ErrorMessage = "Phone number is required")]
         [RegularExpression(@"^(010|011|012|015)\d{8}$", ErrorMessage = "Invalid phone number format")]
         public string Phone { get; set; }
-
-        [Required(ErrorMessage = "Street is required")]
         public string Street { get; set; }
-
-        [Required(ErrorMessage = "City is required")]
         public string City { get; set; }
-
-        [Required(ErrorMessage = "State is required")]
         public string State { get; set; }
         public string? PostalCode { get; set; }
 
