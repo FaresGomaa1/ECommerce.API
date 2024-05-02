@@ -16,13 +16,20 @@ namespace ECommerce.API.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
-        public UserRepository(UserManager<ApplicationUser> userManager)
+        public UserRepository(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IConfiguration configuration)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
+            _configuration = configuration;
         }
 
-        public async Task<IdentityResult> CreateUserAsync(UserRegisterDTO newUser)
+        public async Task<IdentityResult> CreateUserAsync(UserRegisterDTO newUser, string roleName)
         {
             try
             {
@@ -34,7 +41,23 @@ namespace ECommerce.API.Repositories
                     PhoneNumber = newUser.Phone,
                     Address = $"{newUser.City}-{newUser.Street}-{newUser.State}"
                 };
+
+                // Create the user
                 IdentityResult result = await _userManager.CreateAsync(userModel, newUser.Password);
+
+                // If user creation is successful and a role name is provided, assign the role to the user
+                if (result.Succeeded && !string.IsNullOrEmpty(roleName))
+                {
+                    // Check if the role exists, if not create it
+                    if (!await _roleManager.RoleExistsAsync(roleName))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+
+                    // Assign the role to the user
+                    await _userManager.AddToRoleAsync(userModel, roleName);
+                }
+
                 return result;
             }
             catch (Exception ex)
@@ -43,10 +66,11 @@ namespace ECommerce.API.Repositories
             }
         }
 
+
         public async Task<IActionResult> GenerateToken(UserLogInDTO user)
         {
-            // Find user by email
-            ApplicationUser userModel = await _userManager.FindByEmailAsync(user.Email);
+            // Find user by userName
+            ApplicationUser userModel = await _userManager.FindByNameAsync(user.Email);
 
             // Check if user exists and password is correct
             if (userModel != null && await _userManager.CheckPasswordAsync(userModel, user.Password))
@@ -77,8 +101,8 @@ namespace ECommerce.API.Repositories
 
                 // Create JWT token
                 var token = new JwtSecurityToken(
-                    issuer: "https://localhost:7152",
-                    audience: "http://localhost:4200",
+                    issuer: _configuration["Jwt:ValidIss"],
+                    audience: _configuration["Jwt:ValidAud"],
                     claims: claims,
                     expires: DateTime.UtcNow.AddHours(3),
                     signingCredentials: credentials

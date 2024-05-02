@@ -36,7 +36,7 @@ namespace ECommerce.API.ECommerce.Infrastructure
 
             // Configure composite primary key for ProductSize entity
             modelBuilder.Entity<ProductSize>()
-                 .HasKey(ps => new { ps.ProductId, ps.SizeId });
+                .HasKey(ps => new { ps.ProductId, ps.SizeName });
             //// Configure composite primary key for Wishlist entity
             modelBuilder.Entity<Cart>()
                 .HasKey(c => new { c.ProductId, c.ApplicationUserId });
@@ -77,7 +77,7 @@ namespace ECommerce.API.ECommerce.Infrastructure
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId)
+                .HasForeignKey(p => p.CategoryName)
                 .IsRequired();
         }
 

@@ -4,6 +4,7 @@ using ECommerce.API.DTOs.Users;
 using ECommerce.API.Repositories;
 using ECommerce.API.ECommerce.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ECommerce.API.Controllers
 {
@@ -17,22 +18,17 @@ namespace ECommerce.API.Controllers
         {
             _userRepository = userRepository;
         }
-
+        
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterDTO newUser)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Any())
-                    .Select(x => new { Field = x.Key, Errors = x.Value.Errors.Select(e => e.ErrorMessage) })
-                    .ToList();
-
-                return BadRequest(errors);
+                return BadRequest(ModelState);
             }
             try
             {
-                var result = await _userRepository.CreateUserAsync(newUser);
+                var result = await _userRepository.CreateUserAsync(newUser, "customer");
 
                 if (result.Succeeded)
                 {
@@ -59,12 +55,7 @@ namespace ECommerce.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Any())
-                    .Select(x => new { Field = x.Key, Errors = x.Value.Errors.Select(e => e.ErrorMessage) })
-                    .ToList();
-
-                return BadRequest(errors);
+                return BadRequest(ModelState);
             }
             try
             {

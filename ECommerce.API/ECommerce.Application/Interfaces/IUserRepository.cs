@@ -6,7 +6,7 @@ namespace ECommerce.API.ECommerce.Application.Interfaces
 {
     public interface IUserRepository
     {
-        Task<IdentityResult> CreateUserAsync(UserRegisterDTO newUser);
+        Task<IdentityResult> CreateUserAsync(UserRegisterDTO newUser, string roleName);
         Task<IActionResult> GenerateToken(UserLogInDTO user);
     }
 }
