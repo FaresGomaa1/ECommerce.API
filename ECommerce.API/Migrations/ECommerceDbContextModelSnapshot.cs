@@ -123,17 +123,10 @@ namespace ECommerce.API.Migrations
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Category", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryName");
 
                     b.ToTable("Categories");
                 });
@@ -224,8 +217,9 @@ namespace ECommerce.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -240,7 +234,7 @@ namespace ECommerce.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("CategoryName");
 
                     b.ToTable("Products");
                 });
@@ -251,31 +245,28 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("int")
                         .HasColumnOrder(1);
 
-                    b.Property<int>("SizeId")
-                        .HasColumnType("int")
+                    b.Property<string>("SizeName")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
                         .HasColumnOrder(2);
 
-                    b.HasKey("ProductId", "SizeId");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
-                    b.HasIndex("SizeId");
+                    b.HasKey("ProductId", "SizeName");
+
+                    b.HasIndex("SizeName");
 
                     b.ToTable("ProductSizes");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Size", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("SizeName")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.HasKey("Id");
+                    b.HasKey("SizeName");
 
                     b.ToTable("Sizes");
                 });
@@ -494,7 +485,7 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Category", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("CategoryName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -511,7 +502,7 @@ namespace ECommerce.API.Migrations
 
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Size", "Size")
                         .WithMany("ProductSizes")
-                        .HasForeignKey("SizeId")
+                        .HasForeignKey("SizeName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

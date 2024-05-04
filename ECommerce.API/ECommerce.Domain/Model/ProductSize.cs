@@ -5,13 +5,15 @@ namespace ECommerce.API.ECommerce.Domain.Model
 {
     public class ProductSize
     {
-        [Key]
-        [Column(Order = 1)]
+        [Key, Column(Order = 1)]
         public int ProductId { get; set; }
-        [Key]
-        [Column(Order = 2)]
-        public int SizeId { get; set; }
         public Product Product { get; set; }
+
+        [Key, Column(Order = 2)]
+        [MaxLength(10)]
+        public string SizeName { get; set; }
         public Size Size { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

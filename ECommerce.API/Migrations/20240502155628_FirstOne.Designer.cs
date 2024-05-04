@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.API.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
-    [Migration("20240422223024_makeCartAndWishListHasCompstPK")]
-    partial class makeCartAndWishListHasCompstPK
+    [Migration("20240502155628_FirstOne")]
+    partial class FirstOne
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -106,40 +106,30 @@ namespace ECommerce.API.Migrations
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Cart", b =>
                 {
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
 
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnOrder(2);
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("ApplicationUserId", "ProductId");
+                    b.HasKey("ProductId", "ApplicationUserId");
 
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Category", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryName");
 
                     b.ToTable("Categories");
                 });
@@ -191,11 +181,6 @@ namespace ECommerce.API.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<string>("UnitPrice")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
@@ -218,8 +203,7 @@ namespace ECommerce.API.Migrations
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -236,25 +220,24 @@ namespace ECommerce.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("CategoryName");
 
                     b.ToTable("Products");
                 });
@@ -265,31 +248,28 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("int")
                         .HasColumnOrder(1);
 
-                    b.Property<int>("SizeId")
-                        .HasColumnType("int")
+                    b.Property<string>("SizeName")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
                         .HasColumnOrder(2);
 
-                    b.HasKey("ProductId", "SizeId");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
-                    b.HasIndex("SizeId");
+                    b.HasKey("ProductId", "SizeName");
+
+                    b.HasIndex("SizeName");
 
                     b.ToTable("ProductSizes");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Size", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("SizeName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.HasKey("Id");
+                    b.HasKey("SizeName");
 
                     b.ToTable("Sizes");
                 });
@@ -297,19 +277,16 @@ namespace ECommerce.API.Migrations
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Wishlist", b =>
                 {
                     b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnOrder(2);
 
                     b.HasKey("ApplicationUserId", "ProductId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.ToTable("Wishlists");
                 });
@@ -456,14 +433,10 @@ namespace ECommerce.API.Migrations
                         .IsRequired();
 
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", "Product")
-                        .WithMany()
+                        .WithMany("Carts")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", null)
-                        .WithMany("Carts")
-                        .HasForeignKey("ProductId1");
 
                     b.Navigation("ApplicationUser");
 
@@ -515,7 +488,7 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Category", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("CategoryName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -532,7 +505,7 @@ namespace ECommerce.API.Migrations
 
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Size", "Size")
                         .WithMany("ProductSizes")
-                        .HasForeignKey("SizeId")
+                        .HasForeignKey("SizeName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -550,14 +523,10 @@ namespace ECommerce.API.Migrations
                         .IsRequired();
 
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", "Product")
-                        .WithMany()
+                        .WithMany("Wishlists")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", null)
-                        .WithMany("Wishlists")
-                        .HasForeignKey("ProductId1");
 
                     b.Navigation("ApplicationUser");
 

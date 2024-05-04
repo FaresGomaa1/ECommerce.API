@@ -1,4 +1,5 @@
 using AutoMapper;
+using ECommerce.API.DTOs.Cart;
 using ECommerce.API.DTOs.Product;
 using ECommerce.API.DTOs.ProductSize;
 using ECommerce.API.ECommerce.Domain.Model;
@@ -12,6 +13,8 @@ public class MappingProfile : Profile
            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(photo => photo.Url)));
 
         CreateMap<ProductSize, ProductSizeDTO>();
+        CreateMap<Cart, CartGetDTO>();
+        CreateMap<CartAddEditDTO, Cart>();
     }
 }
 

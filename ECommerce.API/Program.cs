@@ -5,12 +5,8 @@ using ECommerce.API.ECommerce.Domain.Model;
 using ECommerce.API.ECommerce.Infrastructure;
 using ECommerce.API.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -33,8 +29,9 @@ namespace ECommerce.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<ICategory, CategoryRepo>();
+            builder.Services.AddScoped<IGeneral, GeneralRepo>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ICartRepo, CartRepo>();
             //builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             builder.Services.Configure<MailSetting>(configuration.GetSection("MailSettings"));
             builder.Services.AddTransient<IMailRepo, MailRepo>();
