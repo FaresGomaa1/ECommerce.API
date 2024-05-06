@@ -35,11 +35,9 @@ namespace ECommerce.API.Repositories
             {
                 var userModel = new ApplicationUser
                 {
-                    Email = newUser.Email,
                     FullName = newUser.FullName,
-                    UserName = newUser.Email,
-                    PhoneNumber = newUser.Phone,
-                    Address = $"{newUser.City}-{newUser.Street}-{newUser.State}"
+                    UserName = newUser.UserName,
+                    PhoneNumber = newUser.Phone
                 };
 
                 // Create the user
@@ -65,12 +63,10 @@ namespace ECommerce.API.Repositories
                 throw ex;
             }
         }
-
-
         public async Task<IActionResult> GenerateToken(UserLogInDTO user)
         {
             // Find user by userName
-            ApplicationUser userModel = await _userManager.FindByNameAsync(user.Email);
+            ApplicationUser userModel = await _userManager.FindByNameAsync(user.UserName);
 
             // Check if user exists and password is correct
             if (userModel != null && await _userManager.CheckPasswordAsync(userModel, user.Password))

@@ -9,13 +9,15 @@ namespace ECommerce.API.ECommerce.Domain.Model
     {
         public int Id { get; set; }
         public DateTime OrderDate { get; set; }
-        public int TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
         [MaxLength(50)]
         public string OrderStatus { get; set; }
-
         [ForeignKey("ApplicationUser")]
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+        [ForeignKey("Address")]
+        public int AddressId { get; set; }
+        public Address Address { get; set; }
         public ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }

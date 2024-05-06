@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.API.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
-    [Migration("20240502155628_FirstOne")]
-    partial class FirstOne
+    [Migration("20240506204643_firstOne1")]
+    partial class firstOne1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,35 @@ namespace ECommerce.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Address", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlockNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("FloorLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Addresses");
+                });
+
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -32,11 +61,6 @@ namespace ECommerce.API.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -134,6 +158,17 @@ namespace ECommerce.API.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Color", b =>
+                {
+                    b.Property<string>("ColorName")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("ColorName");
+
+                    b.ToTable("Colors");
+                });
+
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -141,6 +176,9 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
@@ -154,10 +192,12 @@ namespace ECommerce.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("TotalAmount")
-                        .HasColumnType("int");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("ApplicationUserId");
 
@@ -185,7 +225,8 @@ namespace ECommerce.API.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .IsUnique();
 
                     b.ToTable("OrderDetails");
                 });
@@ -240,6 +281,27 @@ namespace ECommerce.API.Migrations
                     b.HasIndex("CategoryName");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductColor", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("ColorName")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnOrder(2);
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "ColorName");
+
+                    b.HasIndex("ColorName");
+
+                    b.ToTable("ProductColors");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductSize", b =>
@@ -445,11 +507,19 @@ namespace ECommerce.API.Migrations
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Order", b =>
                 {
+                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.ApplicationUser", "ApplicationUser")
                         .WithMany("Orders")
                         .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Address");
 
                     b.Navigation("ApplicationUser");
                 });
@@ -493,6 +563,23 @@ namespace ECommerce.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductColor", b =>
+                {
+                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Color", null)
+                        .WithMany("ProductColors")
+                        .HasForeignKey("ColorName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", "Product")
+                        .WithMany("ProductColors")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductSize", b =>
@@ -598,6 +685,11 @@ namespace ECommerce.API.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Color", b =>
+                {
+                    b.Navigation("ProductColors");
+                });
+
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Order", b =>
                 {
                     b.Navigation("OrderDetails");
@@ -610,6 +702,8 @@ namespace ECommerce.API.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("Photos");
+
+                    b.Navigation("ProductColors");
 
                     b.Navigation("ProductSizes");
 

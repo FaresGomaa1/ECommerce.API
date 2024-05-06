@@ -18,6 +18,9 @@ namespace ECommerce.API.ECommerce.Infrastructure
         public DbSet<ProductSize> ProductSizes { get; set; }
         public DbSet<Size> Sizes { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<ProductColor> ProductColors { get; set; }
+        public DbSet<Color> Colors { get; set; }
+        public DbSet<Address> Addresses { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,12 +40,27 @@ namespace ECommerce.API.ECommerce.Infrastructure
             // Configure composite primary key for ProductSize entity
             modelBuilder.Entity<ProductSize>()
                 .HasKey(ps => new { ps.ProductId, ps.SizeName });
+            // Configure composite primary key for ProductColor entity
+            modelBuilder.Entity<ProductColor>()
+                .HasKey(ps => new { ps.ProductId, ps.ColorName });
             //// Configure composite primary key for Wishlist entity
             modelBuilder.Entity<Cart>()
                 .HasKey(c => new { c.ProductId, c.ApplicationUserId });
             //// Configure composite primary key for Cart entity
             modelBuilder.Entity<Wishlist>()
                 .HasKey(w => new { w.ApplicationUserId, w.ProductId });
+            // Make ProductId in OrderDetails unique
+            modelBuilder.Entity<OrderDetails>()
+                .HasIndex(od => od.ProductId).IsUnique();
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.TotalAmount)
+                .HasColumnType("decimal(18, 2)");
+
+            modelBuilder.Entity<Order>()
+                 .HasOne(o => o.Address)
+                 .WithMany()
+                 .HasForeignKey(o => o.AddressId);
         }
         #region Relationships
         //private void ConfigureCart(ModelBuilder modelBuilder)

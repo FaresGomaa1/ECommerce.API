@@ -32,6 +32,9 @@ namespace ECommerce.API
             builder.Services.AddScoped<IGeneral, GeneralRepo>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICartRepo, CartRepo>();
+            builder.Services.AddScoped<IWishList, WishListRepo>();
+            builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             //builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             builder.Services.Configure<MailSetting>(configuration.GetSection("MailSettings"));
             builder.Services.AddTransient<IMailRepo, MailRepo>();

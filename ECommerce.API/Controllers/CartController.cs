@@ -19,7 +19,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddToCart(CartAddEditDTO cartAddEditDTO)
+        public async Task<ActionResult> AddToCart(CartAddEditDTO cartAddEditDTO)
         {
             if (cartAddEditDTO == null)
                 return BadRequest("Cart data is null");
@@ -31,26 +31,27 @@ namespace ECommerce.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                return HandleException(ex);
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllCarts()
+        [HttpGet("{userId}")]
+        public async Task<ActionResult> GetAllCarts(string userId)
         {
             try
             {
-                var carts = await _cartRepo.GetAllCartsAsync();
+                var carts = await _cartRepo.GetAllCartsAsync(userId);
                 return Ok(carts);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                return HandleException(ex);
             }
         }
 
+
         [HttpGet("{productId}/{applicationUserId}")]
-        public async Task<IActionResult> GetCart(int productId = 0, string applicationUserId = "")
+        public async Task<ActionResult> GetCart(int productId = 0, string applicationUserId = "")
         {
             try
             {
@@ -62,14 +63,13 @@ namespace ECommerce.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                return HandleException(ex);
             }
         }
 
         [HttpDelete("{productId}/{applicationUserId}")]
-        public async Task<IActionResult> RemoveFromCart(int productId = 0, string applicationUserId = "Igonre")
+        public async Task<ActionResult> RemoveFromCart(int productId = 0, string applicationUserId = "Igonre")
         {
-
             try
             {
                 var result = await _cartRepo.RemoveFromCartAsync(productId, applicationUserId);
@@ -80,12 +80,12 @@ namespace ECommerce.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                return HandleException(ex);
             }
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateCart(CartAddEditDTO cartAddEditDTO)
+        public async Task<ActionResult> UpdateCart(CartAddEditDTO cartAddEditDTO)
         {
             if (cartAddEditDTO == null)
                 return BadRequest("Cart data is null");
@@ -103,8 +103,13 @@ namespace ECommerce.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
+                return HandleException(ex);
             }
+        }
+
+        private ActionResult HandleException(Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
         }
     }
 }

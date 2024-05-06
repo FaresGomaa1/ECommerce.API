@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace ECommerce.API.ECommerce.Domain.Model
 {
-    public class ProductSize
+    public class ProductColor
     {
         [Key, Column(Order = 1)]
         public int ProductId { get; set; }
@@ -11,8 +11,7 @@ namespace ECommerce.API.ECommerce.Domain.Model
 
         [Key, Column(Order = 2)]
         [MaxLength(10)]
-        public string SizeName { get; set; }
-        public Size Size { get; set; }
+        public string ColorName { get; set; }
         public int Quantity { get; set; }
     }
 }

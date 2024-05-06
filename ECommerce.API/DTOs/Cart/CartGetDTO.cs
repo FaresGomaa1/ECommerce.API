@@ -2,7 +2,7 @@
 {
     public class CartGetDTO
     {
-        public int ProductId { get; set; }
         public string ApplicationUserId { get; set; }
+        public List<CartItemDTO> Items { get; set; }
     }
 }

@@ -4,10 +4,6 @@ using ECommerce.API.ECommerce.Application.Interfaces;
 using ECommerce.API.ECommerce.Domain.Model;
 using ECommerce.API.ECommerce.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ECommerce.API.ECommerce.Application.Repositories
 {
@@ -36,18 +32,31 @@ namespace ECommerce.API.ECommerce.Application.Repositories
 
             await _dbContext.SaveChangesAsync();
         }
-
-        public async Task<IEnumerable<CartGetDTO>> GetAllCartsAsync()
+        public async Task<IEnumerable<CartGetDTO>> GetAllCartsAsync(string userId)
         {
-            var cartItems = await _dbContext.Carts.ToListAsync();
+            // User exists, proceed to fetch the carts
+            var carts = await _dbContext.Carts
+                .Include(c => c.Product)
+                .Where(c => c.ApplicationUserId == userId)
+                .ToListAsync();
 
-            if (cartItems == null || !cartItems.Any())
-            {
-                return Enumerable.Empty<CartGetDTO>();
-            }
+            var cartGetDTOs = carts
+                .GroupBy(c => c.ApplicationUserId)
+                .Select(group => new CartGetDTO
+                {
+                    ApplicationUserId = group.Key,
+                    Items = group.Select(item => new CartItemDTO
+                    {
+                        ProductId = item.ProductId,
+                        ProductName = item.Product.ProductName,
+                        Price = (decimal)item.Product.Price,
+                        Quantity = item.Quantity
+                    }).ToList()
+                }).ToList();
 
-            return _mapper.Map<IEnumerable<CartGetDTO>>(cartItems);
+            return cartGetDTOs;
         }
+
         public async Task<CartGetDTO> GetCartAsync(int productId, string applicationUserId)
         {
             Cart cartItem = null;
