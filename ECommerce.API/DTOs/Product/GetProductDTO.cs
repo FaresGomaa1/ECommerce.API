@@ -1,4 +1,3 @@
-using ECommerce.API.DTOs.ProductColor;
 using ECommerce.API.DTOs.ProductSize;
 
 namespace ECommerce.API.DTOs.Product
@@ -11,7 +10,6 @@ namespace ECommerce.API.DTOs.Product
         public double Price { get; set; }
         public string CategoryName { get; set; }
         public List<string> Photos { get; set; }
-        public List<ProductSizeDTO> ProductSizes { get; set; }
-        public List<ProductColorDTO> ProductColors { get; set; }
+        public List<ProductSizeColorDTO> ProductSizeColors { get; set; }
     }
 }

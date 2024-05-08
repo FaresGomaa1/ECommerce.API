@@ -26,6 +26,12 @@ namespace ECommerce.API.ECommerce.Application.Repositories
                 .Select(s => s.SizeName)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<string>> GetAllColorssAsync()
+        {
+            return await _dbContext.Colors
+                .Select(s => s.ColorName)
+                .ToListAsync();
+        }
 
         public async Task<int> GetProductCountAsync()
         {

@@ -15,8 +15,7 @@ namespace ECommerce.API.ECommerce.Domain.Model
         public Category Category { get; set; }
         public ICollection<Cart> Carts { get; set; }
         public ICollection<Wishlist> Wishlists { get; set; }
-        public ICollection<ProductSize> ProductSizes { get; set; }
-        public ICollection<ProductColor> ProductColors { get; set; }
+        public ICollection<ProductSizeColor> ProductSizeColors { get; set; }
         public ICollection<Photo> Photos { get; set; }
         public ICollection<OrderDetails> OrderDetails { get; set; }
     }

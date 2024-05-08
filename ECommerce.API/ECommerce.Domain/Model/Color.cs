@@ -7,6 +7,6 @@ namespace ECommerce.API.ECommerce.Domain.Model
         [Key]
         [MaxLength(10)]
         public string ColorName { get; set; }
-        public ICollection<ProductColor> ProductColors { get; set; }
+        public ICollection<ProductSizeColor> ProductSizeColors { get; set; }
     }
 }

@@ -55,9 +55,7 @@ namespace ECommerce.API.Repositories
         {
             return _dbContext.Products
                               .Include(p => p.Photos)
-                              .Include(p => p.ProductSizes)
-                              .Include(p => p.ProductColors)
-                              .Where(p => p.ProductSizes.Any(ps => ps.Quantity > 0) || p.ProductColors.Any(pc => pc.Quantity > 0));
+                              .Include(p => p.ProductSizeColors.Where(ps => ps.Quantity > 0));
         }
     }
 }

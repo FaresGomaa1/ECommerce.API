@@ -15,12 +15,11 @@ namespace ECommerce.API.ECommerce.Infrastructure
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<ProductSize> ProductSizes { get; set; }
-        public DbSet<Size> Sizes { get; set; }
+        public DbSet<ProductSizeColor> ProductSizeColors { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
-        public DbSet<ProductColor> ProductColors { get; set; }
-        public DbSet<Color> Colors { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<Size> Sizes { get; set; }
+        public DbSet<Color> Colors { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,11 +37,8 @@ namespace ECommerce.API.ECommerce.Infrastructure
             ConfigureOrderDetails(modelBuilder);
 
             // Configure composite primary key for ProductSize entity
-            modelBuilder.Entity<ProductSize>()
-                .HasKey(ps => new { ps.ProductId, ps.SizeName });
-            // Configure composite primary key for ProductColor entity
-            modelBuilder.Entity<ProductColor>()
-                .HasKey(ps => new { ps.ProductId, ps.ColorName });
+            modelBuilder.Entity<ProductSizeColor>()
+                .HasKey(ps => new { ps.ProductId, ps.SizeName, ps.ColorName });
             //// Configure composite primary key for Wishlist entity
             modelBuilder.Entity<Cart>()
                 .HasKey(c => new { c.ProductId, c.ApplicationUserId });
@@ -61,6 +57,10 @@ namespace ECommerce.API.ECommerce.Infrastructure
                  .HasOne(o => o.Address)
                  .WithMany()
                  .HasForeignKey(o => o.AddressId);
+
+            modelBuilder.Entity<Cart>()
+                .HasIndex(c => new { c.Size, c.Color })
+                .IsUnique();
         }
         #region Relationships
         //private void ConfigureCart(ModelBuilder modelBuilder)

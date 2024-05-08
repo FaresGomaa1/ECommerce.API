@@ -263,6 +263,8 @@ namespace ECommerce.API.Migrations
                 {
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Size = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -330,56 +332,31 @@ namespace ECommerce.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductColors",
+                name: "ProductSizeColors",
                 columns: table => new
                 {
                     ProductId = table.Column<int>(type: "int", nullable: false),
+                    SizeName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     ColorName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    SizeName = table.Column<string>(type: "nvarchar(10)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductColors", x => new { x.ProductId, x.ColorName });
+                    table.PrimaryKey("PK_ProductSizeColors", x => new { x.ProductId, x.SizeName, x.ColorName });
                     table.ForeignKey(
-                        name: "FK_ProductColors_Colors_ColorName",
+                        name: "FK_ProductSizeColors_Colors_ColorName",
                         column: x => x.ColorName,
                         principalTable: "Colors",
                         principalColumn: "ColorName",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductColors_Products_ProductId",
+                        name: "FK_ProductSizeColors_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductColors_Sizes_SizeName",
-                        column: x => x.SizeName,
-                        principalTable: "Sizes",
-                        principalColumn: "SizeName",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductSizes",
-                columns: table => new
-                {
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    SizeName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductSizes", x => new { x.ProductId, x.SizeName });
-                    table.ForeignKey(
-                        name: "FK_ProductSizes_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductSizes_Sizes_SizeName",
+                        name: "FK_ProductSizeColors_Sizes_SizeName",
                         column: x => x.SizeName,
                         principalTable: "Sizes",
                         principalColumn: "SizeName",
@@ -462,6 +439,12 @@ namespace ECommerce.API.Migrations
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Carts_Size_Color",
+                table: "Carts",
+                columns: new[] { "Size", "Color" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_OrderId",
                 table: "OrderDetails",
                 column: "OrderId");
@@ -488,23 +471,18 @@ namespace ECommerce.API.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductColors_ColorName",
-                table: "ProductColors",
-                column: "ColorName");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductColors_SizeName",
-                table: "ProductColors",
-                column: "SizeName");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryName",
                 table: "Products",
                 column: "CategoryName");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductSizes_SizeName",
-                table: "ProductSizes",
+                name: "IX_ProductSizeColors_ColorName",
+                table: "ProductSizeColors",
+                column: "ColorName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductSizeColors_SizeName",
+                table: "ProductSizeColors",
                 column: "SizeName");
 
             migrationBuilder.CreateIndex(
@@ -541,10 +519,7 @@ namespace ECommerce.API.Migrations
                 name: "Photos");
 
             migrationBuilder.DropTable(
-                name: "ProductColors");
-
-            migrationBuilder.DropTable(
-                name: "ProductSizes");
+                name: "ProductSizeColors");
 
             migrationBuilder.DropTable(
                 name: "Wishlists");

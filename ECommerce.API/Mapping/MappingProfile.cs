@@ -3,7 +3,6 @@ using ECommerce.API.DTOs.Cart;
 using ECommerce.API.DTOs.Order;
 using ECommerce.API.DTOs.OrderDetails;
 using ECommerce.API.DTOs.Product;
-using ECommerce.API.DTOs.ProductColor;
 using ECommerce.API.DTOs.ProductSize;
 using ECommerce.API.DTOs.WishList;
 using ECommerce.API.ECommerce.Domain.Model;
@@ -16,8 +15,7 @@ public class MappingProfile : Profile
         CreateMap<Product, GetProductDTO>()
            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos.Select(photo => photo.Url)));
 
-        CreateMap<ProductSize, ProductSizeDTO>();
-        CreateMap<ProductColor, ProductColorDTO>();
+        CreateMap<ProductSizeColor, ProductSizeColorDTO>();
         CreateMap<CartAddEditDTO, Cart>();
         CreateMap<WishListAddEditDTO, Wishlist>();
         CreateMap<OrderDTO, Order>();

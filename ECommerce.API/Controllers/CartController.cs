@@ -48,8 +48,6 @@ namespace ECommerce.API.Controllers
                 return HandleException(ex);
             }
         }
-
-
         [HttpGet("{productId}/{applicationUserId}")]
         public async Task<ActionResult> GetCart(int productId = 0, string applicationUserId = "")
         {

@@ -6,6 +6,7 @@ namespace ECommerce.API.ECommerce.Application.Interfaces
     {
         Task<IEnumerable<string>> GetAllCategoriesAsync();
         Task<IEnumerable<string>> GetAllSizesAsync();
+        Task<IEnumerable<string>> GetAllColorssAsync();
         Task<int> GetProductCountAsync();
     }
 }

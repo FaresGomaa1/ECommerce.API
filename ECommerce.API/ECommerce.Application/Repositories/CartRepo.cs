@@ -23,12 +23,22 @@ namespace ECommerce.API.ECommerce.Application.Repositories
             if (cartAddEditDTO == null)
                 throw new ArgumentNullException(nameof(cartAddEditDTO));
 
+            // Check if the product size exists and has sufficient quantity
+            var ProductSizeColor = await _dbContext.ProductSizeColors.FirstOrDefaultAsync(ps =>
+                ps.ProductId == cartAddEditDTO.ProductId && ps.SizeName == cartAddEditDTO.Size && ps.ColorName == cartAddEditDTO.Color);
+
+            if (ProductSizeColor == null || ProductSizeColor.Quantity < cartAddEditDTO.Quantity)
+            {
+                throw new Exception("Unavailable size and color combination. Please choose another or contact support.");
+            }
+
+            // If both size and color are available in sufficient quantity, add to cart
             var existingCartItem = await _dbContext.Carts.FirstOrDefaultAsync(c =>
                 c.ProductId == cartAddEditDTO.ProductId && c.ApplicationUserId == cartAddEditDTO.ApplicationUserId);
 
-                // Item doesn't exist in the cart, so add a new entry
-                var cartItem = _mapper.Map<Cart>(cartAddEditDTO);
-                _dbContext.Carts.Add(cartItem);
+            // Item doesn't exist in the cart, so add a new entry
+            var cartItem = _mapper.Map<Cart>(cartAddEditDTO);
+            _dbContext.Carts.Add(cartItem);
 
             await _dbContext.SaveChangesAsync();
         }
@@ -49,6 +59,8 @@ namespace ECommerce.API.ECommerce.Application.Repositories
                     {
                         ProductId = item.ProductId,
                         ProductName = item.Product.ProductName,
+                        Size = item.Size,
+                        Color = item.Color,
                         Price = (decimal)item.Product.Price,
                         Quantity = item.Quantity
                     }).ToList()
@@ -56,7 +68,6 @@ namespace ECommerce.API.ECommerce.Application.Repositories
 
             return cartGetDTOs;
         }
-
         public async Task<CartGetDTO> GetCartAsync(int productId, string applicationUserId)
         {
             Cart cartItem = null;
@@ -115,11 +126,19 @@ namespace ECommerce.API.ECommerce.Application.Repositories
 
             return false;
         }
-
         public async Task<bool> UpdateCartAsync(CartAddEditDTO cartAddEditDTO)
         {
             if (cartAddEditDTO == null)
                 throw new ArgumentNullException(nameof(cartAddEditDTO));
+
+            // Check if the product size exists and has sufficient quantity
+            var ProductSizeColor = await _dbContext.ProductSizeColors.FirstOrDefaultAsync(ps =>
+                ps.ProductId == cartAddEditDTO.ProductId && ps.SizeName == cartAddEditDTO.Size && ps.ColorName == cartAddEditDTO.Color);
+
+            if (ProductSizeColor == null || ProductSizeColor.Quantity < cartAddEditDTO.Quantity)
+            {
+                throw new Exception("Unavailable size and color combination. Please choose another or contact support.");
+            }
 
             var existingCartItem = await _dbContext.Carts.FirstOrDefaultAsync(c =>
                 c.ProductId == cartAddEditDTO.ProductId && c.ApplicationUserId == cartAddEditDTO.ApplicationUserId);

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.API.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
-    [Migration("20240506204643_firstOne1")]
-    partial class firstOne1
+    [Migration("20240508130007_firstOne")]
+    partial class firstOne
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -138,12 +138,23 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnOrder(2);
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ProductId", "ApplicationUserId");
 
                     b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("Size", "Color")
+                        .IsUnique();
 
                     b.ToTable("Carts");
                 });
@@ -283,28 +294,7 @@ namespace ECommerce.API.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductColor", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(1);
-
-                    b.Property<string>("ColorName")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnOrder(2);
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "ColorName");
-
-                    b.HasIndex("ColorName");
-
-                    b.ToTable("ProductColors");
-                });
-
-            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductSize", b =>
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductSizeColor", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("int")
@@ -315,14 +305,21 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnOrder(2);
 
+                    b.Property<string>("ColorName")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnOrder(3);
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductId", "SizeName");
+                    b.HasKey("ProductId", "SizeName", "ColorName");
+
+                    b.HasIndex("ColorName");
 
                     b.HasIndex("SizeName");
 
-                    b.ToTable("ProductSizes");
+                    b.ToTable("ProductSizeColors");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Size", b =>
@@ -565,36 +562,27 @@ namespace ECommerce.API.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductColor", b =>
+            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductSizeColor", b =>
                 {
-                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Color", null)
-                        .WithMany("ProductColors")
+                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Color", "Color")
+                        .WithMany("ProductSizeColors")
                         .HasForeignKey("ColorName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", "Product")
-                        .WithMany("ProductColors")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.ProductSize", b =>
-                {
-                    b.HasOne("ECommerce.API.ECommerce.Domain.Model.Product", "Product")
-                        .WithMany("ProductSizes")
+                        .WithMany("ProductSizeColors")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ECommerce.API.ECommerce.Domain.Model.Size", "Size")
-                        .WithMany("ProductSizes")
+                        .WithMany("ProductSizeColors")
                         .HasForeignKey("SizeName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Color");
 
                     b.Navigation("Product");
 
@@ -687,7 +675,7 @@ namespace ECommerce.API.Migrations
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Color", b =>
                 {
-                    b.Navigation("ProductColors");
+                    b.Navigation("ProductSizeColors");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Order", b =>
@@ -703,16 +691,14 @@ namespace ECommerce.API.Migrations
 
                     b.Navigation("Photos");
 
-                    b.Navigation("ProductColors");
-
-                    b.Navigation("ProductSizes");
+                    b.Navigation("ProductSizeColors");
 
                     b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("ECommerce.API.ECommerce.Domain.Model.Size", b =>
                 {
-                    b.Navigation("ProductSizes");
+                    b.Navigation("ProductSizeColors");
                 });
 #pragma warning restore 612, 618
         }
