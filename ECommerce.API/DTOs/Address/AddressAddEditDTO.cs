@@ -4,7 +4,6 @@ namespace ECommerce.API.DTOs.Address
 {
     public class AddressAddEditDTO
     {
-        public int Id { get; set; }
         [StringLength(100, ErrorMessage = "Street length cannot exceed 100 characters")]
         public string Street { get; set; }
         [Required(ErrorMessage = "City is required")]

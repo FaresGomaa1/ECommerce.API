@@ -21,24 +21,30 @@ namespace ECommerce.API.Controllers
             _addressRepository = addressRepository ?? throw new ArgumentNullException(nameof(addressRepository));
         }
         [HttpPost]
-        public async Task<IActionResult> CreateNewOrder(OrderDTO newOrder, List<OrderDetailsAdd> OrderDetails, AddressAddEditDTO newAddress)
+        public async Task<IActionResult> CreateNewOrder(OrderDTO newOrder)
         {
             try
             {
-                if (newOrder.AddressId == null && newAddress != null)
+                if ((newOrder.AddressId == null || newOrder.AddressId == 0) && newOrder.newAddress != null)
                 {
-                    var addedAddress = await _addressRepository.AddAsync(newAddress);
+                    var addedAddress = await _addressRepository.AddAsync(newOrder.newAddress);
                     newOrder.AddressId = addedAddress.AddressId;
                 }
                 // Check if combinations are available in stock
-                if (!_orderDetailsRepository.AreCombinationsAvailable(OrderDetails))
+                if (!_orderDetailsRepository.AreCombinationsAvailable(newOrder.OrderDetails))
                 {
                     return BadRequest("Some of the orders are not available in stock.");
                 }
-                // Add the order
-                await _orderRepository.AddOrderAsync(newOrder);
+                decimal totalAmount = await _orderDetailsRepository.CalculateTotalAmountAsync(newOrder.OrderDetails);
+                decimal tolerance = 0.01m;
+                if (Math.Abs(newOrder.TotalAmount - totalAmount) > tolerance)
+                {
+                    return BadRequest($"The calculated total amount ({totalAmount}) does not match the provided total amount ({newOrder.TotalAmount}).");
+                }
+                // Add the orderin
+                int orderId = await _orderRepository.AddOrderAsync(newOrder);
                 // Add order details
-                await _orderDetailsRepository.AddOrderDetailsAsync(OrderDetails);
+                await _orderDetailsRepository.AddOrderDetailsAsync(newOrder.OrderDetails, orderId);
 
                 return Ok("Order created successfully.");
             }

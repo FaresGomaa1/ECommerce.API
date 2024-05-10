@@ -8,7 +8,7 @@ namespace ECommerce.API.ECommerce.Application.Interfaces
         Task<AddressGetDTO> GetByIdAsync(int id);
         Task<IEnumerable<AddressGetDTO>> GetAllAsync();
         Task<AddressAddResultDTO> AddAsync(AddressAddEditDTO addressDto);
-        Task<AddressAddEditDTO> UpdateAsync(AddressAddEditDTO address);
+        //Task<AddressAddEditDTO> UpdateAsync(AddressAddEditDTO address);
         Task<bool> DeleteAsync(int id);
     }
 }

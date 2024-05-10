@@ -59,21 +59,21 @@ namespace ECommerce.API.ECommerce.Application.Repositories
             return _mapper.Map<AddressGetDTO>(address);
         }
 
-        public async Task<AddressAddEditDTO> UpdateAsync(AddressAddEditDTO addressDto)
-        {
-            if (addressDto == null)
-                throw new ArgumentNullException(nameof(addressDto));
+        //public async Task<AddressAddEditDTO> UpdateAsync(AddressAddEditDTO addressDto)
+        //{
+        //    if (addressDto == null)
+        //        throw new ArgumentNullException(nameof(addressDto));
 
-            var existingAddress = await _dbContext.Addresses.FindAsync(addressDto.Id);
-            if (existingAddress == null)
-                throw new ArgumentException($"Address with ID {addressDto.Id} not found");
+        //    var existingAddress = await _dbContext.Addresses.FindAsync(addressDto.Id);
+        //    if (existingAddress == null)
+        //        throw new ArgumentException($"Address with ID {addressDto.Id} not found");
 
-            _mapper.Map(addressDto, existingAddress);
+        //    _mapper.Map(addressDto, existingAddress);
 
-            _dbContext.Entry(existingAddress).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+        //    _dbContext.Entry(existingAddress).State = EntityState.Modified;
+        //    await _dbContext.SaveChangesAsync();
 
-            return _mapper.Map<AddressAddEditDTO>(existingAddress);
-        }
+        //    return _mapper.Map<AddressAddEditDTO>(existingAddress);
+        //}
     }
 }

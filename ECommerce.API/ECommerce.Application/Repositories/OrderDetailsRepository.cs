@@ -17,7 +17,7 @@ namespace ECommerce.API.ECommerce.Application.Repositories
             _dbContext = dbContext;
             _mapper = mapper;
         }
-        public async Task AddOrderDetailsAsync(List<OrderDetailsAdd> orderDetailsList)
+        public async Task AddOrderDetailsAsync(List<OrderDetailsAdd> orderDetailsList, int orderId)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
@@ -45,15 +45,20 @@ namespace ECommerce.API.ECommerce.Application.Repositories
                             // If quantity becomes zero, remove the product size color
                             _dbContext.ProductSizeColors.Remove(productSizeColor);
                         }
-
+                        // Map DTO to domain model
+                        var newOrderDetail = new OrderDetails
+                        {
+                            Quantity = orderDetails.Quantity,
+                            Size = orderDetails.Size,
+                            Color = orderDetails.Color,
+                            OrderId = orderId,
+                            ProductId = orderDetails.ProductId
+                        };
                         // Update the database with the new quantity
                         _dbContext.ProductSizeColors.Update(productSizeColor);
 
-                        // Map DTO to domain model
-                        var newOrderDetails = _mapper.Map<OrderDetails>(orderDetails);
-
                         // Add order details to the database
-                        await _dbContext.OrderDetails.AddAsync(newOrderDetails);
+                        await _dbContext.OrderDetails.AddAsync(newOrderDetail);
                     }
                     else
                     {
@@ -96,6 +101,26 @@ namespace ECommerce.API.ECommerce.Application.Repositories
             }
 
             return true;
+        }
+        public async Task<decimal> CalculateTotalAmountAsync(List<OrderDetailsAdd> orderDetailsList)
+        {
+            decimal totalAmount = 0;
+            var groupedOrderDetails = orderDetailsList.GroupBy(od => od.ProductId);
+
+            foreach (var group in groupedOrderDetails)
+            {
+                int totalQuantity = group.Sum(od => od.Quantity);
+
+                double productPrice = await _dbContext.Products
+                    .Where(p => p.Id == group.Key)
+                    .Select(p => p.Price)
+                    .FirstOrDefaultAsync();
+
+                double subtotal = productPrice * totalQuantity;
+
+                totalAmount += (decimal)subtotal;
+            }
+            return totalAmount;
         }
     }
 }

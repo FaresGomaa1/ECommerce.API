@@ -1,4 +1,5 @@
-﻿using ECommerce.API.DTOs.OrderDetails;
+﻿using ECommerce.API.DTOs.Address;
+using ECommerce.API.DTOs.OrderDetails;
 
 namespace ECommerce.API.DTOs.Order
 {
@@ -9,5 +10,7 @@ namespace ECommerce.API.DTOs.Order
         public int AddressId { get; set; }
         public string OrderStatus { get; set; }
         public string ApplicationUserId { get; set; }
+        public List<OrderDetailsAdd> OrderDetails { get; set; }
+        public AddressAddEditDTO newAddress { get; set; }
     }
 }

@@ -20,18 +20,29 @@ namespace ECommerce.API.ECommerce.Application.Repositories
             _dbContext = dbContext;
             _mapper = mapper;
         }
-        public async Task AddOrderAsync(OrderDTO order)
+        public async Task<int> AddOrderAsync(OrderDTO order)
         {
             if (order == null)
             {
                 throw new ArgumentNullException(nameof(order), "Order cannot be null.");
             }
+
             // Map DTO to domain model
-            var newOrder = _mapper.Map<Order>(order);
+            var newOrder = new Order()
+            {
+                OrderDate = DateTime.Now,
+                TotalAmount = order.TotalAmount,
+                OrderStatus = "Pending",
+                ApplicationUserId = order.ApplicationUserId,
+                AddressId = order.AddressId
+            };
 
             // Add order to the database
             await _dbContext.Orders.AddAsync(newOrder);
             await _dbContext.SaveChangesAsync();
+
+            // Return the ID of the newly created order
+            return newOrder.Id;
         }
         public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync(string userId)
         {
