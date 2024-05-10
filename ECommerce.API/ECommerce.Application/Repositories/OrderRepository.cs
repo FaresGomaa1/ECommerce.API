@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ECommerce.API.DTOs.Address;
 using ECommerce.API.DTOs.Order;
 using ECommerce.API.ECommerce.Application.Interfaces;
 using ECommerce.API.ECommerce.Domain.Model;
@@ -14,13 +15,11 @@ namespace ECommerce.API.ECommerce.Application.Repositories
     {
         private readonly IMapper _mapper;
         private readonly ECommerceDbContext _dbContext;
-
         public OrderRepository(ECommerceDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
         }
-
         public async Task AddOrderAsync(OrderDTO order)
         {
             if (order == null)
@@ -34,7 +33,6 @@ namespace ECommerce.API.ECommerce.Application.Repositories
             await _dbContext.Orders.AddAsync(newOrder);
             await _dbContext.SaveChangesAsync();
         }
-
         public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync(string userId)
         {
             // Retrieve all orders from the database

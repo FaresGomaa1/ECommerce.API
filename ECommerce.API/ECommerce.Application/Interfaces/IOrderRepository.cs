@@ -1,4 +1,5 @@
-﻿using ECommerce.API.DTOs.Order;
+﻿using ECommerce.API.DTOs.Address;
+using ECommerce.API.DTOs.Order;
 
 namespace ECommerce.API.ECommerce.Application.Interfaces
 {

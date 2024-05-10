@@ -35,6 +35,7 @@ namespace ECommerce.API
             builder.Services.AddScoped<IWishList, WishListRepo>();
             builder.Services.AddScoped<IOrderDetailsRepository, OrderDetailsRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IAddressRepo, AddressRepo>();
             //builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             builder.Services.Configure<MailSetting>(configuration.GetSection("MailSettings"));
             builder.Services.AddTransient<IMailRepo, MailRepo>();

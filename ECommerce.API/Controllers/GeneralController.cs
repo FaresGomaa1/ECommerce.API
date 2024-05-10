@@ -45,7 +45,20 @@ namespace ECommerce.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
         }
-
+        [HttpGet("color")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<string>>> GetAllColorsAsync()
+        {
+            try
+            {
+                var colors = await _generalService.GetAllColorssAsync();
+                return Ok(colors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+        }
         [HttpGet("productCount")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<int>> GetProductCountAsync()

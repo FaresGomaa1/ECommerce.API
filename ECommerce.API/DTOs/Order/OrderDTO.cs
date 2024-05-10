@@ -1,4 +1,4 @@
-﻿using ECommerce.API.DTOs.Address;
+﻿using ECommerce.API.DTOs.OrderDetails;
 
 namespace ECommerce.API.DTOs.Order
 {
@@ -6,7 +6,7 @@ namespace ECommerce.API.DTOs.Order
     {
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public AddressGetDTO Address { get; set; } 
+        public int AddressId { get; set; }
         public string OrderStatus { get; set; }
         public string ApplicationUserId { get; set; }
     }

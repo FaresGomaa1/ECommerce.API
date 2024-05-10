@@ -4,7 +4,8 @@ namespace ECommerce.API.ECommerce.Application.Interfaces
 {
     public interface IOrderDetailsRepository
     {
-        Task<IEnumerable<OrderDetailsDTO>> GetOrderDetailsByOrderIdAsync(int orderId);
-        Task AddOrderDetailsAsync(OrderDetailsDTO orderDetails);
+        Task<IEnumerable<OrderDetailsGetDTO>> GetOrderDetailsByOrderIdAsync(int orderId);
+        Task AddOrderDetailsAsync(List<OrderDetailsAdd> orderDetailsList);
+        bool AreCombinationsAvailable(List<OrderDetailsAdd> orderDetailsList);
     }
 }
