@@ -25,7 +25,7 @@ namespace ECommerce.API.Controllers
             try
             {
                 await _wishListRepo.AddItemAsync(item);
-                return Ok("Item Addedd");
+                return Ok(new {message = "Item Addedd"});
             }
             catch (Exception ex)
             {
@@ -54,7 +54,7 @@ namespace ECommerce.API.Controllers
             {
                 var wishlistItem = await _wishListRepo.GetItemByIdAsync(productId);
                 if (wishlistItem == null)
-                    return NotFound($"Wishlist item with productId {productId} not found.");
+                    return NotFound(new {message = $"Wishlist item with productId {productId} not found." });
 
                 return Ok(wishlistItem);
             }
@@ -70,7 +70,7 @@ namespace ECommerce.API.Controllers
             try
             {
                 await _wishListRepo.DeleteItemAsync(productId, userId);
-                return Ok("Item deleted");
+                return Ok(new {message = "Item deleted" });
             }
             catch (Exception ex)
             {

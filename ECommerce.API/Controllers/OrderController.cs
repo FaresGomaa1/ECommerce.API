@@ -33,20 +33,20 @@ namespace ECommerce.API.Controllers
                 // Check if combinations are available in stock
                 if (!_orderDetailsRepository.AreCombinationsAvailable(newOrder.OrderDetails))
                 {
-                    return BadRequest("Some of the orders are not available in stock.");
+                    return BadRequest(new {message = "Some of the orders are not available in stock." });
                 }
                 decimal totalAmount = await _orderDetailsRepository.CalculateTotalAmountAsync(newOrder.OrderDetails);
                 decimal tolerance = 0.01m;
                 if (Math.Abs(newOrder.TotalAmount - totalAmount) > tolerance)
                 {
-                    return BadRequest($"The calculated total amount ({totalAmount}) does not match the provided total amount ({newOrder.TotalAmount}).");
+                    return BadRequest(new {message = $"The calculated total amount ({totalAmount}) does not match the provided total amount ({newOrder.TotalAmount})." });
                 }
                 // Add the orderin
                 int orderId = await _orderRepository.AddOrderAsync(newOrder);
                 // Add order details
                 await _orderDetailsRepository.AddOrderDetailsAsync(newOrder.OrderDetails, orderId);
 
-                return Ok("Order created successfully.");
+                return Ok(new {message = "Order created successfully." });
             }
             catch (Exception ex)
             {

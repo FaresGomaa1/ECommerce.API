@@ -13,12 +13,14 @@ namespace ECommerce.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IUserRepository userRepository, ILogger<UserController> logger)
         {
             _userRepository = userRepository;
+            _logger = logger;   
         }
-        
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterDTO newUser)
         {
@@ -26,13 +28,14 @@ namespace ECommerce.API.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             try
             {
                 var result = await _userRepository.CreateUserAsync(newUser, "customer");
 
                 if (result.Succeeded)
                 {
-                    return Ok("User created successfully");
+                    return Ok(new { message = "User created successfully" });
                 }
                 else
                 {
@@ -45,10 +48,14 @@ namespace ECommerce.API.Controllers
             }
             catch (Exception ex)
             {
+                // Log the exception for further analysis
+                _logger.LogError(ex, "An error occurred while registering a user.");
+
                 // Return a generic error message
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while registering a user.");
             }
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLogInDTO user)

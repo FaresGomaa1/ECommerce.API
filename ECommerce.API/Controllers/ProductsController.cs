@@ -24,7 +24,7 @@ public class ProductsController : ControllerBase
             }
             else
             {
-                return BadRequest("page and pageSize should be greater than 0.");
+                return BadRequest(new {message = "page and pageSize should be greater than 0." });
             }
         }
         catch (Exception ex)
@@ -45,7 +45,7 @@ public class ProductsController : ControllerBase
             }
             else
             {
-                return NotFound($"Product with ID {id} not found.");
+                return NotFound(new {message = $"Product with ID {id} not found." });
             }
         }
         catch (Exception ex)

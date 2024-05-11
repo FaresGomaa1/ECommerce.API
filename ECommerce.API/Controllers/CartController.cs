@@ -22,12 +22,12 @@ namespace ECommerce.API.Controllers
         public async Task<ActionResult> AddToCart(CartAddEditDTO cartAddEditDTO)
         {
             if (cartAddEditDTO == null)
-                return BadRequest("Cart data is null");
+                return BadRequest(new { message = "Cart data is null" });
 
             try
             {
                 await _cartRepo.AddToCartAsync(cartAddEditDTO);
-                return Ok("Item added to cart successfully");
+                return Ok(new {message ="Item added to cart successfully" });
             }
             catch (Exception ex)
             {
@@ -55,7 +55,7 @@ namespace ECommerce.API.Controllers
             {
                 var cart = await _cartRepo.GetCartAsync(productId, applicationUserId);
                 if (cart == null)
-                    return NotFound("Cart not found");
+                    return NotFound(new {message = "Cart not found" });
 
                 return Ok(cart);
             }
@@ -72,9 +72,9 @@ namespace ECommerce.API.Controllers
             {
                 var result = await _cartRepo.RemoveFromCartAsync(productId, applicationUserId);
                 if (!result)
-                    return NotFound("Cart item not found");
+                    return NotFound(new {message = "Cart item not found" });
 
-                return Ok("Cart item removed successfully");
+                return Ok(new {message = "Cart item removed successfully" });
             }
             catch (Exception ex)
             {
@@ -86,18 +86,18 @@ namespace ECommerce.API.Controllers
         public async Task<ActionResult> UpdateCart(CartAddEditDTO cartAddEditDTO)
         {
             if (cartAddEditDTO == null)
-                return BadRequest("Cart data is null");
+                return BadRequest(new {message = "Cart data is null" });
 
             if (cartAddEditDTO.Quantity <= 0)
-                return BadRequest("Quantity must be greater than zero");
+                return BadRequest(new {message = "Quantity must be greater than zero" });
 
             try
             {
                 var result = await _cartRepo.UpdateCartAsync(cartAddEditDTO);
                 if (!result)
-                    return NotFound("Cart item not found");
+                    return NotFound(new {message = "Cart item not found" });
 
-                return Ok("Cart item updated successfully");
+                return Ok(new {message = "Cart item updated successfully" });
             }
             catch (Exception ex)
             {

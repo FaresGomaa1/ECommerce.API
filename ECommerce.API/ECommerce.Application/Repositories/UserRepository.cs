@@ -10,6 +10,7 @@ using ECommerce.API.DTOs.Users;
 using ECommerce.API.ECommerce.Domain.Model;
 using ECommerce.API.ECommerce.Application.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 
 namespace ECommerce.API.Repositories
 {
@@ -18,15 +19,20 @@ namespace ECommerce.API.Repositories
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<UserRepository> _logger;
 
-        public UserRepository(
+        public UserRepository
+         (
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<UserRepository> logger
+        )
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<IdentityResult> CreateUserAsync(UserRegisterDTO newUser, string roleName)
@@ -60,9 +66,14 @@ namespace ECommerce.API.Repositories
             }
             catch (Exception ex)
             {
-                throw ex;
+                // Log the exception for further analysis
+                _logger.LogError(ex, "An error occurred while creating a user.");
+
+                // Return a failure result
+                return IdentityResult.Failed(new IdentityError { Code = "Error", Description = "An error occurred while creating a user." });
             }
         }
+
         public async Task<IActionResult> GenerateToken(UserLogInDTO user)
         {
             // Find user by userName
