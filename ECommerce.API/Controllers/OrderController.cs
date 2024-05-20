@@ -2,6 +2,7 @@
 using ECommerce.API.DTOs.Order;
 using ECommerce.API.DTOs.OrderDetails;
 using ECommerce.API.ECommerce.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -20,6 +21,7 @@ namespace ECommerce.API.Controllers
             _orderDetailsRepository = orderDetailsRepository ?? throw new ArgumentNullException(nameof(orderDetailsRepository));
             _addressRepository = addressRepository ?? throw new ArgumentNullException(nameof(addressRepository));
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateNewOrder(OrderDTO newOrder)
         {

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ECommerce.API.DTOs.Cart;
 using ECommerce.API.ECommerce.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,11 @@ namespace ECommerce.API.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartRepo _cartRepo;
-
         public CartController(ICartRepo cartRepo)
         {
             _cartRepo = cartRepo ?? throw new ArgumentNullException(nameof(cartRepo));
         }
-
+        [Authorize(Roles = "customer")]
         [HttpPost]
         public async Task<ActionResult> AddToCart(CartAddEditDTO cartAddEditDTO)
         {
@@ -35,19 +35,21 @@ namespace ECommerce.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{userId}")]
         public async Task<ActionResult> GetAllCarts(string userId)
         {
             try
             {
-                var carts = await _cartRepo.GetAllCartsAsync(userId);
-                return Ok(carts);
+                var cart = await _cartRepo.GetCartAsync(userId);
+                return Ok(cart);
             }
             catch (Exception ex)
             {
                 return HandleException(ex);
             }
         }
+        [Authorize]
         [HttpGet("{productId}/{applicationUserId}")]
         public async Task<ActionResult> GetCart(int productId = 0, string applicationUserId = "")
         {
@@ -64,9 +66,9 @@ namespace ECommerce.API.Controllers
                 return HandleException(ex);
             }
         }
-
+        [Authorize]
         [HttpDelete("{productId}/{applicationUserId}")]
-        public async Task<ActionResult> RemoveFromCart(int productId = 0, string applicationUserId = "Igonre")
+        public async Task<ActionResult> RemoveFromCart(int productId, string applicationUserId)
         {
             try
             {
@@ -81,23 +83,20 @@ namespace ECommerce.API.Controllers
                 return HandleException(ex);
             }
         }
-
-        [HttpPut]
-        public async Task<ActionResult> UpdateCart(CartAddEditDTO cartAddEditDTO)
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<ActionResult> UpdateCart(List<CartAddEditDTO> newItems)
         {
-            if (cartAddEditDTO == null)
-                return BadRequest(new {message = "Cart data is null" });
-
-            if (cartAddEditDTO.Quantity <= 0)
-                return BadRequest(new {message = "Quantity must be greater than zero" });
-
             try
             {
-                var result = await _cartRepo.UpdateCartAsync(cartAddEditDTO);
-                if (!result)
-                    return NotFound(new {message = "Cart item not found" });
+                var (success, outOfStockItems) = await _cartRepo.UpdateCartAsync(newItems);
 
-                return Ok(new {message = "Cart item updated successfully" });
+                if (!success)
+                {
+                    return BadRequest(new { message = "Unable to update cart items.", outOfStockItems });
+                }
+
+                return Ok(new { message = "Cart updated successfully." });
             }
             catch (Exception ex)
             {
@@ -109,5 +108,6 @@ namespace ECommerce.API.Controllers
         {
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message}");
         }
+
     }
 }

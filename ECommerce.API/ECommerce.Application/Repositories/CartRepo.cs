@@ -42,31 +42,28 @@ namespace ECommerce.API.ECommerce.Application.Repositories
 
             await _dbContext.SaveChangesAsync();
         }
-        public async Task<IEnumerable<CartGetDTO>> GetAllCartsAsync(string userId)
+        public async Task<CartGetDTO> GetCartAsync(string userId)
         {
-            // User exists, proceed to fetch the carts
             var carts = await _dbContext.Carts
-                .Include(c => c.Product)
                 .Where(c => c.ApplicationUserId == userId)
+                .Include(c => c.Product)
                 .ToListAsync();
 
-            var cartGetDTOs = carts
-                .GroupBy(c => c.ApplicationUserId)
-                .Select(group => new CartGetDTO
+            var cartDTO = new CartGetDTO
+            {
+                ApplicationUserId = userId,
+                Items = carts.Select(c => new CartItemDTO
                 {
-                    ApplicationUserId = group.Key,
-                    Items = group.Select(item => new CartItemDTO
-                    {
-                        ProductId = item.ProductId,
-                        ProductName = item.Product.ProductName,
-                        Size = item.Size,
-                        Color = item.Color,
-                        Price = (decimal)item.Product.Price,
-                        Quantity = item.Quantity
-                    }).ToList()
-                }).ToList();
+                    ProductId = c.ProductId,
+                    ProductName = c.Product.ProductName,
+                    Price = (decimal)c.Product.Price,
+                    Quantity = c.Quantity,
+                    Size = c.Size,
+                    Color = c.Color
+                }).ToList()
+            };
 
-            return cartGetDTOs;
+            return cartDTO;
         }
         public async Task<CartGetDTO> GetCartAsync(int productId, string applicationUserId)
         {
@@ -126,31 +123,66 @@ namespace ECommerce.API.ECommerce.Application.Repositories
 
             return false;
         }
-        public async Task<bool> UpdateCartAsync(CartAddEditDTO cartAddEditDTO)
+        public async Task<(bool success, List<CartAddEditDTO> outOfStockItems)> UpdateCartAsync(List<CartAddEditDTO> newItems)
         {
-            if (cartAddEditDTO == null)
-                throw new ArgumentNullException(nameof(cartAddEditDTO));
-
-            // Check if the product size exists and has sufficient quantity
-            var ProductSizeColor = await _dbContext.ProductSizeColors.FirstOrDefaultAsync(ps =>
-                ps.ProductId == cartAddEditDTO.ProductId && ps.SizeName == cartAddEditDTO.Size && ps.ColorName == cartAddEditDTO.Color);
-
-            if (ProductSizeColor == null || ProductSizeColor.Quantity < cartAddEditDTO.Quantity)
+            List<CartAddEditDTO> outOfStockItems = new List<CartAddEditDTO>();
+            bool success = true;
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
-                throw new Exception("Unavailable size and color combination. Please choose another or contact support.");
+                try
+                {
+                    foreach (var item in newItems)
+                    {
+                        var cartItem = await _dbContext.Carts
+                            .SingleOrDefaultAsync(c => c.ApplicationUserId == item.ApplicationUserId
+                                                     && c.ProductId == item.ProductId
+                                                     && c.Color == item.Color
+                                                     && c.Size == item.Size);
+
+                        int quantity = await _dbContext.ProductSizeColors
+                            .Where(pcs => pcs.ProductId == item.ProductId
+                                       && pcs.ColorName == item.Color
+                                       && pcs.SizeName == item.Size)
+                            .Select(c => c.Quantity)
+                            .SingleOrDefaultAsync();
+
+                        if (cartItem == null)
+                        {
+                            success = false;
+                            continue;
+                        }
+
+                        if (item.Quantity > quantity)
+                        {
+                            outOfStockItems.Add(item);
+                            success = false;
+                        }
+                        else
+                        {
+                            cartItem.Quantity = item.Quantity;
+                            _dbContext.Carts.Update(cartItem);
+                        }
+                    }
+
+                    if (success)
+                    {
+                        await _dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                    }
+
+                    return (success, outOfStockItems);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new Exception("Failed to update cart items.", ex);
+                }
             }
-
-            var existingCartItem = await _dbContext.Carts.FirstOrDefaultAsync(c =>
-                c.ProductId == cartAddEditDTO.ProductId && c.ApplicationUserId == cartAddEditDTO.ApplicationUserId);
-
-            if (existingCartItem != null)
-            {
-                existingCartItem.Quantity = cartAddEditDTO.Quantity;
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
-
-            return false;
         }
+
     }
 }

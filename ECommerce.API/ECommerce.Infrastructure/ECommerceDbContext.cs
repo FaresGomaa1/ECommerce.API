@@ -41,7 +41,7 @@ namespace ECommerce.API.ECommerce.Infrastructure
                 .HasKey(ps => new { ps.ProductId, ps.SizeName, ps.ColorName });
             //// Configure composite primary key for Wishlist entity
             modelBuilder.Entity<Cart>()
-                .HasKey(c => new { c.ProductId, c.ApplicationUserId });
+                .HasKey(c => new { c.ProductId, c.ApplicationUserId, c.Size, c.Color });
             //// Configure composite primary key for Cart entity
             modelBuilder.Entity<Wishlist>()
                 .HasKey(w => new { w.ApplicationUserId, w.ProductId });

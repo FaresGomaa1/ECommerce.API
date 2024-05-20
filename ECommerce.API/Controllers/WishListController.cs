@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ECommerce.API.DTOs.WishList;
 using ECommerce.API.ECommerce.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace ECommerce.API.Controllers
         {
             _wishListRepo = wishListRepo;
         }
-
+        [Authorize(Roles = "customer")]
         [HttpPost]
         public async Task<IActionResult> AddItem(WishListAddEditDTO item)
         {
@@ -32,7 +33,7 @@ namespace ECommerce.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error adding item to wishlist: {ex.Message}");
             }
         }
-
+        [Authorize]
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAllItems(string userId)
         {
@@ -46,7 +47,7 @@ namespace ECommerce.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving wishlist items: {ex.Message}");
             }
         }
-
+        [Authorize]
         [HttpGet("{userId}/{productId}")]
         public async Task<IActionResult> GetItemById(string userId, int productId)
         {
@@ -63,7 +64,7 @@ namespace ECommerce.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving wishlist item: {ex.Message}");
             }
         }
-
+        [Authorize]
         [HttpDelete("{userId}/{productId}")]
         public async Task<IActionResult> DeleteItem(string userId, int productId)
         {

@@ -21,7 +21,6 @@ namespace ECommerce.API
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
-
             // Add services to the container.
             builder.Services.AddSingleton(configuration);
             builder.Services.AddAutoMapper(typeof(Program));
@@ -39,6 +38,13 @@ namespace ECommerce.API
             //builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             builder.Services.Configure<MailSetting>(configuration.GetSection("MailSettings"));
             builder.Services.AddTransient<IMailRepo, MailRepo>();
+            // inject for database
+            builder.Services.AddDbContext<ECommerceDbContext>(optionBuilder =>
+            {
+                optionBuilder.UseSqlServer(configuration.GetConnectionString("cs"));
+            });
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ECommerceDbContext>().AddDefaultTokenProviders();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,20 +58,14 @@ namespace ECommerce.API
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = builder.Configuration["Jwt:ValidIss"],
                     ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:ValidIss"],
                     ValidAudience = builder.Configuration["Jwt:ValidAud"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("HelloFromECommerceWebsite5HelloFromECommerceWebsite5"))
                 };
             });
-
-            // inject for database
-            builder.Services.AddDbContext<ECommerceDbContext>(optionBuilder =>
-            {
-                optionBuilder.UseSqlServer(configuration.GetConnectionString("cs"));
-            });
-
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ECommerceDbContext>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

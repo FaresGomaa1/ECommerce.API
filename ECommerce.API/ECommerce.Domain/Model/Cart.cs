@@ -5,7 +5,9 @@ namespace ECommerce.API.ECommerce.Domain.Model
 {
     public class Cart
     {
+        [Key, Column(Order = 3)]
         public string Size { get; set; }
+        [Key, Column(Order = 4)]
         public string Color { get; set; }
         public int Quantity { get; set; }
         [Key, Column(Order = 1)]
